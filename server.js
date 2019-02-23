@@ -34,8 +34,15 @@ app.get('/api/members/', function (req, res) {
     memberController.memberOperation.getMemberById(req.params.id,function(err,rows) {
         if(err) { res.json(err); }
         else { res.json(rows[0]); }
-        });
-    });
+      });
+  });
+
+  app.get('/api/members/search/:search', function (req, res) {
+    memberController.memberOperation.getMemberBySearch(req.params.search,function(err,rows) {
+        if(err) { res.json(err); }
+        else { res.json(rows); }
+      });
+  });
 
   app.put('/api/members/:id',function(req,res,next){
     memberController.memberOperation.updateMember(req.params.id,req.body,function(err,rows){

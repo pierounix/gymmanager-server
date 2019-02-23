@@ -9,6 +9,11 @@ var memberOperation = {
     getMemberById:function(id,callback){
         return db.query("select * from MEMBER where Id=?",[id],callback);
         },
+    
+    getMemberBySearch:function(search,callback){
+        console.log(search);
+        return db.query("select * from MEMBER where first_name like ? or last_name like ?",['%' +search +'%','%' +search+ '%'],callback);
+        },
 
     updateMember:function(id,member,callback){
             return db.query(`update member 
