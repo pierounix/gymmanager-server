@@ -11,14 +11,32 @@ var memberOperation = {
         },
     
     getMemberBySearch:function(search,callback){
-        console.log(search);
         return db.query("select * from MEMBER where first_name like ? or last_name like ?",['%' +search +'%','%' +search+ '%'],callback);
+        },
+
+    getMemberByEmail:function(email,callback){
+        return db.query("select * from MEMBER where email = ?",[email],callback);
+        },
+        
+    addMember:function(member, callback) {
+        return db.query("Insert into MEMBER values(null,?,?,?,?,?,?,?,?,?,?)",[ member.first_name, 
+                                                                    member.last_name, 
+                                                                    member.email,
+                                                                    member.password, 
+                                                                    member.date_of_birth.split('T')[0],
+                                                                    member.expiry_date.split('T')[0], 
+                                                                    member.address, 
+                                                                    member.telephone, 
+                                                                    member.status, 
+                                                                    member.sheet],callback);
         },
 
     updateMember:function(id,member,callback){
             return db.query(`update member 
                             set first_name=?,
                             last_name=?, 
+                            email=?,
+                            password=?,
                             date_of_birth=?, 
                             expiry_date=?, 
                             address=?,
@@ -26,9 +44,17 @@ var memberOperation = {
                             status=?, 
                             sheet=? 
                             where Id=?`,
-                            [member.first_name, member.last_name, member.date_of_birth.split('T')[0],
-                                member.expiry_date.split('T')[0], member.address, member.telephone, 
-                                member.status, member.sheet, id],callback);
+                            [   member.first_name, 
+                                member.last_name, 
+                                member.email,
+                                member.password, 
+                                member.date_of_birth.split('T')[0],
+                                member.expiry_date.split('T')[0], 
+                                member.address, 
+                                member.telephone, 
+                                member.status, 
+                                member.sheet,
+                                id],callback);
            }
 };
 

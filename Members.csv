@@ -1,4 +1,4 @@
-FIRST_NAME;LAST_NAME;DATE_OF_BIRTH;EXPIRY_DATE;ADDRESS;TELEPHONE;MEMBER_STATUS;SHEET
-Piero;Uniti;1985-07-31;2020-07-31;via Starza;3348528582;Attivo;SI
-Sara;Abbatiello;1993-07-05;2020-07-31;c.da Traugnano,6;3348528582;Attivo;SI
-Argento;Vincenzo;1989-04-14;2019-07-31;via Pennino,47;3348528583;Scaduto;NO
+"id";"first_name";"last_name";"email";"password";"date_of_birth";"expiry_date";"address";"telephone";"status";"sheet"
+1;"Piero";"Uniti";"";"";"1985-07-25";"2018-12-26";"via Starza, SNC";"3348528582";"Attivo";"SI"
+2;"Sara";"Abbatiello";"";"";"1993-07-04";"2020-07-30";"c.da Traugnano, 17";"3348528582";"Attivo";"SI"
+3;"Argento";"Vincenzo";"";"";"1989-04-14";"2019-07-31";"via Pennino,47";"3348528583";"Attivo";"NO"
