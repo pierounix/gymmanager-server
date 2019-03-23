@@ -30,9 +30,9 @@ app.post('/api/login/', (req, res) => {
   memberController.memberOperation.getMemberByEmail(req.body.email, function(err,usr) {
     if(err) { res.status(500).send(err); }
     const user = usr[0];
-    if (!user) return  res.status(404).send('User not found!');
+    if (!user) return  res.status(404).send('Utente non trovato!');
     const  result  =  bcrypt.compareSync(sentPassword, user.password);
-    if(!result) return  res.status(401).send('Password not valid!');
+    if(!result) return  res.status(401).send('Password non valida!');
     const  expiresIn  =  24  *  60  *  60;
     const  accessToken  =  jwt.sign({ id:  user.id }, 'zipiezz', {
                                       expiresIn:  expiresIn
@@ -42,7 +42,6 @@ app.post('/api/login/', (req, res) => {
 });
 
 app.post('/api/register', (req, res) => {
-
   var memberId;
   req.body.password = bcrypt.hashSync(req.body.password);
   memberController.memberOperation.getMemberByEmail(req.body.email, function(err,rows) {
@@ -73,14 +72,12 @@ app.post('/api/register', (req, res) => {
     });
 });
 
+// Verify JWT Token 
 app.use(function(req, res, next) {
-
   // check header or url parameters or post parameters for token
-  var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
+  var token = req.body.token || req.query.token || req.headers['access_token'];
   // decode token
   if (token) {
-
     // verifies secret and checks exp
     jwt.verify(token, 'zipiezz', function(err, decoded) {       if (err) {console.log(err);
         return res.json({ success: false, message: 'Failed to authenticate token.' });       } else {
@@ -88,9 +85,7 @@ app.use(function(req, res, next) {
         req.decoded = decoded;         next();
       }
     });
-
   } else {
-
     // if there is no token
     // return an error
     return res.status(403).send({ 
