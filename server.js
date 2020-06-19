@@ -133,10 +133,18 @@ app.get('/api/members/', function (req, res) {
         });
     });
 
+  app.get('/api/sheets/member/:id', function (req, res) {
+      sheetController.sheetOperation.getSheetByMemberId(req.params.id,function(err,rows) {
+            if(err) { res.json(err); }
+            else { res.json(rows[0]); }
+          });
+      });
+
   app.post('/api/sheets',function(req,res,next){
     sheetController.sheetOperation.addSheet(req.body,function(err,count){
       if(err) { res.json(err); }
-      else { res.json(req.body); }
+      else { 
+        res.json(req.body); }
     });
   });
 
