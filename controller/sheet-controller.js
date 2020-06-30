@@ -25,7 +25,7 @@ var sheetOperation = {
                 if(sheet.end_date == null) {
                         end_date_param = null;
                 } else {
-                        end_date_param =sheet.start_end.split('T')[0];
+                        end_date_param =sheet.end_date.split('T')[0];
                 }
                         return db.query(`update sheet 
                                         set start_date=?,
@@ -36,7 +36,10 @@ var sheetOperation = {
                                          end_date_param,
                                          sheet.sheet_name,
                                          sheet.id],callback);
-                       }
+                },
+        removeSheet:function(id, callback) {
+                return db.query("Delete from SHEET where Id=?", [id], callback);
+                }
 };
 
 exports.sheetOperation=sheetOperation;

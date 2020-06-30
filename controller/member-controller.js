@@ -15,16 +15,28 @@ var memberOperation = {
         },
 
     getMemberByEmail:function(email,callback){
-        return db.query("select * from MEMBER where email = ?",[email],callback);
+        return db.query("select * from MEMBER where email = ? and isAdmin = 1",[email],callback);
         },
         
     addMember:function(member, callback) {
+        var date_of_birth_param, expiry_date_param;
+        if(member.date_of_birth == null) {
+            date_of_birth_param = null;
+         } else {
+            date_of_birth_param =member.date_of_birth.split('T')[0];
+         }
+        if(member.expiry_date == null) {
+            expiry_date_param = null;
+        } else {
+            expiry_date_param =member.expiry_date.split('T')[0];
+        }
+
         return db.query("Insert into MEMBER values(null,?,?,?,?,?,?,?,?,?,?)",[ member.first_name, 
                                                                     member.last_name, 
                                                                     member.email,
                                                                     member.password, 
-                                                                    member.date_of_birth.split('T')[0],
-                                                                    member.expiry_date.split('T')[0], 
+                                                                    date_of_birth_param,
+                                                                    expiry_date_param, 
                                                                     member.address, 
                                                                     member.telephone, 
                                                                     member.status, 
@@ -32,7 +44,19 @@ var memberOperation = {
         },
 
     updateMember:function(id,member,callback){
-            return db.query(`update member 
+        var date_of_birth_param, expiry_date_param;
+        if(member.date_of_birth == null) {
+            date_of_birth_param = null;
+         } else {
+            date_of_birth_param =member.date_of_birth.split('T')[0];
+         }
+        if(member.expiry_date == null) {
+            expiry_date_param = null;
+        } else {
+            expiry_date_param =member.expiry_date.split('T')[0];
+        }
+        
+        return db.query(`update member 
                             set first_name=?,
                             last_name=?, 
                             email=?,
@@ -48,14 +72,18 @@ var memberOperation = {
                                 member.last_name, 
                                 member.email,
                                 member.password, 
-                                member.date_of_birth.split('T')[0],
-                                member.expiry_date.split('T')[0], 
+                                date_of_birth_param,
+                                expiry_date_param, 
                                 member.address, 
                                 member.telephone, 
                                 member.status, 
                                 member.sheet,
                                 id],callback);
-           }
+           },
+
+        removeMember:function(id, callback) {
+            return db.query("Delete from MEMBER where Id=?", [id], callback);
+        }
 };
 
 exports.memberOperation=memberOperation;

@@ -8,6 +8,18 @@ const iconController = require('./controller/icon-controller');
 const exerciseController = require('./controller/exercise-controller');
 const sheetexerciseController = require('./controller/sheetexercise-controller');
 const app = express();
+const fs = require('fs');
+const path = require('path');
+
+const imageDir = path.join(__dirname, 'public/images');
+
+const mime = {
+  gif: 'image/gif',
+  jpg: 'image/jpeg',
+  png: 'image/png',
+  svg: 'image/svg+xml'
+};
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -25,23 +37,53 @@ var corsOptions = {
 app.use(cors(corsOptions));
 
 
+
+// Serve images in public/images directory
+app.get('/public/images/*', function (req, res) {
+  const index = req.path.lastIndexOf("/");
+  var fileName = req.path.substr(index)
+  var file = path.join(imageDir, fileName.replace(/\/$/, '/index.html'));
+  if (file.indexOf(imageDir + path.sep) !== 0) {
+      return res.status(403).end('Forbidden');
+  }
+  var type = mime[path.extname(file).slice(1)] || 'text/plain';
+  var s = fs.createReadStream(file);
+  s.on('open', function () {
+      res.set('Content-Type', type);
+      s.pipe(res);
+  });
+  s.on('error', function () {
+      res.set('Content-Type', 'text/plain');
+      res.status(404).end('Not found');
+  });
+});
+
+
+
 app.post('/api/login/', (req, res) => {
   const  sentPassword  =  req.body.password;
   memberController.memberOperation.getMemberByEmail(req.body.email, function(err,usr) {
-    if(err) { res.status(500).send(err); }
+    if(err) { 
+      console.log("Error authenticating user " + req.body.email + " " +err);
+      res.status(500).send(err); }
     const user = usr[0];
-    if (!user) return  res.status(404).send('Utente non trovato!');
+    if (!user) {
+      console.log("User " + req.body.email +" not found");
+      return  res.status(404).send('Utente non trovato!');
+    }
     const  result  =  bcrypt.compareSync(sentPassword, user.password);
     if(!result) return  res.status(401).send('Password non valida!');
     const  expiresIn  =  24  *  60  *  60;
     const  accessToken  =  jwt.sign({ id:  user.id }, 'zipiezz', {
                                       expiresIn:  expiresIn
                                       });
+    console.log("Authenticated user " +user.email);
     res.status(200).send({ "user":  user, "access_token":  accessToken, "expires_in":  expiresIn});
   });
 });
 
-app.post('/api/register', (req, res) => {
+
+app.post('/api/register/', (req, res) => {
   var memberId;
   req.body.password = bcrypt.hashSync(req.body.password);
   memberController.memberOperation.getMemberByEmail(req.body.email, function(err,rows) {
@@ -50,27 +92,47 @@ app.post('/api/register', (req, res) => {
       // Check if user exists
       if(rows[0] == null) {
       memberController.memberOperation.addMember(req.body, function(err,result) {
-        if(err) { res.send(err); }
+        if(err) { 
+          console.log(err);
+          res.send(err); }
         else { 
             memberId=result.insertId; 
             const  expiresIn  =  24  *  60  *  60;
             const  accessToken  =  jwt.sign({ id:  memberId }, 'zpiezz', {
                                               expiresIn:  129600
                                               });
-            res.status(200).send({  "user":  memberId, 
-                                    "access_token":  accessToken, 
-                                    "expires_in":  expiresIn          
-                                 });
+            memberController.memberOperation.getMemberById(memberId,function(err,rows) {
+                if(err) {   res.status(500).send({  "user":  null, 
+                                                "access_token":  null, 
+                                                "expires_in":  null,
+                                                "message": 'Internal error'        
+                                                }); 
+                      }
+                else { 
+                  console.log("Registered new user " +memberId);  
+                  res.status(200).send({  "user":rows[0],
+                                                "access_token":  accessToken, 
+                                                "expires_in":  expiresIn          
+                                              });
+                      }
+            });
+
             }
           });
         }
         // The user already exists
         else {
-          res.send('Utente già esistente');
+          res.status(200).send({  "user":  null, 
+                                  "access_token":  null, 
+                                  "expires_in":  null,
+                                  "message": 'Utente già esistente'        
+                                  });
         }
       }
     });
 });
+
+
 
 // Verify JWT Token 
 app.use(function(req, res, next) {
@@ -95,6 +157,8 @@ app.use(function(req, res, next) {
 
   }
 });
+
+
 
 
 app.get('/api/members/', function (req, res) {   
@@ -124,6 +188,15 @@ app.get('/api/members/', function (req, res) {
         else { res.json(rows); }
         });
     });
+
+  app.delete('/api/members/:id', function (req, res) {
+    console.log('Requested delete for member ' +req.params.id);
+      memberController.memberOperation.removeMember(req.params.id,function(err,rows) {
+      if(err) {console.log(err); 
+        res.json(err); }
+      else { res.json(rows); }
+    });
+  });
   
 
   app.get('/api/sheets/:id', function (req, res) {
@@ -135,8 +208,10 @@ app.get('/api/members/', function (req, res) {
 
   app.get('/api/sheets/member/:id', function (req, res) {
       sheetController.sheetOperation.getSheetByMemberId(req.params.id,function(err,rows) {
+        console.log("Requested Sheet for member " +req.params.id); 
             if(err) { res.json(err); }
-            else { res.json(rows[0]); }
+            else { 
+              res.json(rows[0]); }
           });
       });
 
@@ -152,6 +227,13 @@ app.get('/api/members/', function (req, res) {
     sheetController.sheetOperation.updateSheet(req.body,function(err){
       if(err) {res.json(err);}
       else{res.json(req.body);}
+    });
+  });
+
+  app.delete('/api/sheets/:id', function (req, res) {
+    sheetController.sheetOperation.removeSheet(req.params.id,function(err,rows) {
+    if(err) { res.json(err); }
+    else { res.json(rows); }
     });
   });
   
@@ -199,33 +281,35 @@ app.get('/api/members/', function (req, res) {
     });
   });
 
-    app.get('/api/sheetexercises/:id_sheet', function (req, res) {
-        sheetexerciseController.sheetexerciseOperation.getSheetExercises(req.params.id_sheet,function(err,rows) {
-          if(err) { res.json(err); }
-          else { res.json(rows);}
-        });
-      });
+  app.get('/api/sheetexercises/:id_sheet', function (req, res) {
+    sheetexerciseController.sheetexerciseOperation.getSheetExercises(req.params.id_sheet,function(err,rows) {
+        if(err) { res.json(err); }
+        else { 
+          console.log("SheetExercises request for Sheet " + req.params.id_sheet);
+          res.json(rows);}
+     });
+    });
     
-      app.get('/api/sheetexercises/:id_sheet/:day', function (req, res) {
-        sheetexerciseController.sheetexerciseOperation.getSheetExerciseByDay(req.params.id_sheet,req.params.day,function(err,rows) {
-          if(err) { res.json(err); }
-          else { res.json(rows); }
-        });
+  app.get('/api/sheetexercises/:id_sheet/:day', function (req, res) {
+    sheetexerciseController.sheetexerciseOperation.getSheetExerciseByDay(req.params.id_sheet,req.params.day,function(err,rows) {
+      if(err) { res.json(err); }
+      else { res.json(rows); }
       });
+    });
   
-      app.post('/api/sheetexercises/', function (req, res) {
-          sheetexerciseController.sheetexerciseOperation.addSheetExercise(req.body,function(err,rows) {
-            if(err) { res.json(err); }
-            else { res.json(rows);}
-          });
-        });
+  app.post('/api/sheetexercises/', function (req, res) {
+      sheetexerciseController.sheetexerciseOperation.addSheetExercise(req.body,function(err,rows) {
+        if(err) { res.json(err); }
+        else { res.json(rows);}
+      });
+    });
       
-      app.delete('/api/sheetexercises/:id_sheet', function (req, res) {
-        sheetexerciseController.sheetexerciseOperation.removeSheetExerciseBySheet(req.params.id_sheet,function(err,rows) {
-            if(err) { res.json(err); }
-            else { res.json(rows);}
-          });
-        });
+  app.delete('/api/sheetexercises/:id_sheet', function (req, res) {
+      sheetexerciseController.sheetexerciseOperation.removeSheetExerciseBySheet(req.params.id_sheet,function(err,rows) {
+        if(err) { res.json(err); }
+        else { res.json(rows);}
+      });
+    });
         
 
 app.listen(8000, () =>{
