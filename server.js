@@ -82,6 +82,28 @@ app.post('/api/login/', (req, res) => {
   });
 });
 
+app.post('/api/login/admin', (req, res) => {
+  const  sentPassword  =  req.body.password;
+  memberController.memberOperation.getMemberByEmailAdmin(req.body.email, function(err,usr) {
+    if(err) { 
+      console.log("Error authenticating user " + req.body.email + " " +err);
+      res.status(500).send(err); }
+    const user = usr[0];
+    if (!user) {
+      console.log("User " + req.body.email +" not found");
+      return  res.status(404).send('Utente non trovato!');
+    }
+    const  result  =  bcrypt.compareSync(sentPassword, user.password);
+    if(!result) return  res.status(401).send('Password non valida!');
+    const  expiresIn  =  24  *  60  *  60;
+    const  accessToken  =  jwt.sign({ id:  user.id }, 'zipiezz', {
+                                      expiresIn:  expiresIn
+                                      });
+    console.log("Authenticated user " +user.email);
+    res.status(200).send({ "user":  user, "access_token":  accessToken, "expires_in":  expiresIn});
+  });
+});
+
 
 app.post('/api/register/', (req, res) => {
   var memberId;
@@ -141,10 +163,12 @@ app.use(function(req, res, next) {
   // decode token
   if (token) {
     // verifies secret and checks exp
-    jwt.verify(token, 'zipiezz', function(err, decoded) {       if (err) {console.log(err);
-        return res.json({ success: false, message: 'Failed to authenticate token.' });       } else {
+    jwt.verify(token, 'zipiezz', function(err, decoded) {       
+      if (err) {console.log(err);
+        return res.status(404).json({ success: false, message: 'Failed to authenticate token.' });       } else {
         // if everything is good, save to request for use in other routes
-        req.decoded = decoded;         next();
+        req.decoded = decoded;         
+        next();
       }
     });
   } else {

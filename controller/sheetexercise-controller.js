@@ -3,7 +3,7 @@ var db = require('../database.js');
 var sheetexerciseOperation = {
 
     getSheetExercises:function(id_sheet,callback) {
-        return db.query("select se.*, substring_index(e.image_path, '/', -1) as imageUrl from exercise e join sheet_exercise se on e.title = se.exercise_title where se.id_sheet = ?", [id_sheet], callback);
+        return db.query("select se.*, e.description, substring_index(e.image_path, '/', -1) as imageUrl from exercise e join sheet_exercise se on e.title = se.exercise_title where se.id_sheet = ?", [id_sheet], callback);
         },  
 
     getSheetExerciseByDay:function(id_sheet,day,callback) {

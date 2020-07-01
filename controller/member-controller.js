@@ -15,6 +15,10 @@ var memberOperation = {
         },
 
     getMemberByEmail:function(email,callback){
+        return db.query("select * from MEMBER where email = ?",[email],callback);
+        },
+    
+    getMemberByEmailAdmin:function(email,callback){
         return db.query("select * from MEMBER where email = ? and isAdmin = 1",[email],callback);
         },
         
@@ -31,7 +35,7 @@ var memberOperation = {
             expiry_date_param =member.expiry_date.split('T')[0];
         }
 
-        return db.query("Insert into MEMBER values(null,?,?,?,?,?,?,?,?,?,?)",[ member.first_name, 
+        return db.query("Insert into MEMBER values(null,?,?,?,?,?,?,?,?,?,?,?)",[ member.first_name, 
                                                                     member.last_name, 
                                                                     member.email,
                                                                     member.password, 
@@ -40,7 +44,8 @@ var memberOperation = {
                                                                     member.address, 
                                                                     member.telephone, 
                                                                     member.status, 
-                                                                    member.sheet],callback);
+                                                                    member.sheet,
+                                                                    0],callback);
         },
 
     updateMember:function(id,member,callback){
