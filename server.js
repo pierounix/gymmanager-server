@@ -30,7 +30,7 @@ const  bcrypt  =  require('bcryptjs');
 const cors = require('cors')
 
 var corsOptions = {
-  origin: 'http://192.168.1.227/',
+  origin: 'http://localhost',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
 }
 
