@@ -120,7 +120,7 @@ app.post('/api/register/', (req, res) => {
         else { 
             memberId=result.insertId; 
             const  expiresIn  =  24  *  60  *  60;
-            const  accessToken  =  jwt.sign({ id:  memberId }, 'zpiezz', {
+            const  accessToken  =  jwt.sign({ id:  memberId }, 'zipiezz', {
                                               expiresIn:  129600
                                               });
             memberController.memberOperation.getMemberById(memberId,function(err,rows) {
