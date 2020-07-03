@@ -4,15 +4,15 @@ var sheetOperation = {
 
         
         getSheetById:function(id,callback) {
-                return db.query("select * from SHEET where Id=?",[id],callback);
+                return db.query("select * from sheet where Id=?",[id],callback);
                 },
 
         getSheetByMemberId:function(id,callback) {
-                return db.query("select * from SHEET where Id_member=?",[id],callback);
+                return db.query("select * from sheet where Id_member=?",[id],callback);
                 },
         
         addSheet:function(sheet, callback) {
-                return db.query("Insert into SHEET (id_member,start_date,end_date,sheet_name) values(?,?,?,?)",[sheet.id_member, sheet.start_date, sheet.end_date, sheet.sheet_name],callback);
+                return db.query("Insert into sheet (id_member,start_date,end_date,sheet_name) values(?,?,?,?)",[sheet.id_member, sheet.start_date, sheet.end_date, sheet.sheet_name],callback);
                 },
         
         updateSheet:function(sheet,callback){
@@ -38,7 +38,7 @@ var sheetOperation = {
                                          sheet.id],callback);
                 },
         removeSheet:function(id, callback) {
-                return db.query("Delete from SHEET where Id=?", [id], callback);
+                return db.query("Delete from sheet where Id=?", [id], callback);
                 }
 };
 

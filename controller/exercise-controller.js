@@ -3,19 +3,19 @@ var db = require('../database.js');
 var exerciseOperation = {
 
     getAllExercises:function(callback) {
-        return db.query("Select * from EXERCISE", callback); 
+        return db.query("Select * from exercise", callback); 
         },
         
     getExerciseById:function(id,callback) {
-        return db.query("select * from EXERCISE where Id=?", [id], callback);
+        return db.query("select * from exercise where Id=?", [id], callback);
         },
     
     getExerciseByMuscle:function(muscle,callback) {
-        return db.query("select * from EXERCISE where muscle=?", [muscle], callback);
+        return db.query("select * from exercise where muscle=?", [muscle], callback);
         },    
     
     addExercise:function(exercise, callback) {
-        return db.query("Insert into EXERCISE values(null,?,?,?,?)",[exercise.title, exercise.description, exercise.muscle, exercise.image_path],callback);
+        return db.query("Insert into exercise values(null,?,?,?,?)",[exercise.title, exercise.description, exercise.muscle, exercise.image_path],callback);
         },
 
     updateExercise:function(exercise,callback){
@@ -33,7 +33,7 @@ var exerciseOperation = {
            },
               
     removeExercise:function(id,callback) {
-        return db.query("Delete from EXERCISE where Id=?", [id], callback);
+        return db.query("Delete from exercise where Id=?", [id], callback);
         }
 };
 

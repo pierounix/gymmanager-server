@@ -3,23 +3,23 @@ var db = require('../database.js');
 var memberOperation = {
 
     getAllMembers:function(callback){
-        return db.query("Select * from MEMBER",callback); 
+        return db.query("Select * from member",callback); 
         },
         
     getMemberById:function(id,callback){
-        return db.query("select * from MEMBER where Id=?",[id],callback);
+        return db.query("select * from member where Id=?",[id],callback);
         },
     
     getMemberBySearch:function(search,callback){
-        return db.query("select * from MEMBER where first_name like ? or last_name like ?",['%' +search +'%','%' +search+ '%'],callback);
+        return db.query("select * from member where first_name like ? or last_name like ?",['%' +search +'%','%' +search+ '%'],callback);
         },
 
     getMemberByEmail:function(email,callback){
-        return db.query("select * from MEMBER where email = ?",[email],callback);
+        return db.query("select * from member where email = ?",[email],callback);
         },
     
     getMemberByEmailAdmin:function(email,callback){
-        return db.query("select * from MEMBER where email = ? and isAdmin = 1",[email],callback);
+        return db.query("select * from member where email = ? and isAdmin = 1",[email],callback);
         },
         
     addMember:function(member, callback) {
@@ -35,7 +35,7 @@ var memberOperation = {
             expiry_date_param =member.expiry_date.split('T')[0];
         }
 
-        return db.query("Insert into MEMBER values(null,?,?,?,?,?,?,?,?,?,?,?)",[ member.first_name, 
+        return db.query("Insert into member values(null,?,?,?,?,?,?,?,?,?,?,?)",[ member.first_name, 
                                                                     member.last_name, 
                                                                     member.email,
                                                                     member.password, 
@@ -87,7 +87,7 @@ var memberOperation = {
            },
 
         removeMember:function(id, callback) {
-            return db.query("Delete from MEMBER where Id=?", [id], callback);
+            return db.query("Delete from member where Id=?", [id], callback);
         }
 };
 

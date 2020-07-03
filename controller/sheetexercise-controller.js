@@ -7,7 +7,7 @@ var sheetexerciseOperation = {
         },  
 
     getSheetExerciseByDay:function(id_sheet,day,callback) {
-        return db.query("select * from SHEET_EXERCISE where id_sheet=? and day=?", [id_sheet,day], callback);
+        return db.query("select * from sheet_exercise where id_sheet=? and day=?", [id_sheet,day], callback);
         },
           
     addSheetExercise:function(sheetexercises, callback) {
@@ -23,15 +23,15 @@ var sheetexerciseOperation = {
                         sheetexercises[i].note ];
             exercises.push(ex);
         }
-        return db.query("Insert into SHEET_EXERCISE (id,exercise_title,exercise_muscle,id_sheet,day,exercise_mode,num_exercise,note) values ?",[exercises],callback);
+        return db.query("Insert into sheet_exercise (id,exercise_title,exercise_muscle,id_sheet,day,exercise_mode,num_exercise,note) values ?",[exercises],callback);
         },
 
     removeSheetExerciseBySheet:function(id_sheet, callback) {
-            return db.query("Delete from SHEET_EXERCISE where Id_sheet=?", [id_sheet], callback);
+            return db.query("Delete from sheet_exercise where Id_sheet=?", [id_sheet], callback);
         },
 
     removeSheetExercise:function(id, callback) {
-        return db.query("Delete from SHEET_EXERCISE where Id=?", [id], callback);
+        return db.query("Delete from sheet_exercise where Id=?", [id], callback);
         }
 };
 
