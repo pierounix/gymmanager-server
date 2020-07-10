@@ -27,14 +27,31 @@ app.use(cookieParser());
 
 const  jwt  =  require('jsonwebtoken');
 const  bcrypt  =  require('bcryptjs'); 
-const cors = require('cors')
 
-var corsOptions = {
-  origin: 'http://localhost/',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
-}
+const multer = require("multer");
+var storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, "./public/images/"); 
+  },
+  filename: function(req, file, cb) {
+    console.log(file); //log the file object info in console
+    cb(null, file.originalname);//here we specify the file saving name. in this case. 
+  }
+});
+var uploadDisk = multer({ storage: storage });
 
-app.use(cors(corsOptions));
+app.post("/api/public/images/", uploadDisk.single("image"), (req, res) => {
+  res.status(200).send();
+});
+
+//const cors = require('cors')
+
+//var corsOptions = {
+//  origin: 'http://localhost:4200/',
+//  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
+//}
+
+//app.use(cors(corsOptions));
 
 
 
@@ -302,6 +319,21 @@ app.get('/api/members/', function (req, res) {
     iconController.iconOperation.getAllIcons(function(err,rows) {
       if(err) { res.json(err); }
       else { res.json(rows); }
+    });
+  });
+
+  app.get('/api/icons/:title', function (req, res) {
+    iconController.iconOperation.getIconByTitle(req.params.title, function(err,rows) {
+      if(err) { res.json(err); }
+      else { res.json(rows[0]); }
+    });
+  });
+
+  app.post('/api/icons',function(req,res,next){
+    iconController.iconOperation.addIcon(req.body,function(err,count){
+      if(err) { res.json(err); }
+      else { 
+        res.json(req.body); }
     });
   });
 
